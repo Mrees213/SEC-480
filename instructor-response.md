@@ -13,13 +13,13 @@ Type your answer after each answer marker below. Then commit and push, the same 
 your first file.
 
 1. What is a place you would go back to tomorrow if you could?
-   **Answer:**
+   **Answer: hawaii 
 
 2. What is the longest you have ever waited in a line, and for what?
-   **Answer:**
+   **Answer:** 7 hours learners permit dmv
 
 3. What is a small thing that reliably improves your day?
-   **Answer:**
+   **Answer:**Usally having my own shedule
 
 Nothing here is graded and nothing is technical. Answer in a line each. These come back later
 in the term in ways you will recognize when you see them.
