@@ -1,0 +1,11 @@
+# Integration Validation
+
+I connected Claude to my GitHub repository `sec-480`.
+
+First, I asked Claude to read my README and tell me what it said. Claude was able to read the repository and returned the correct information from the README.
+
+After the connection was established, I created `usage-window.md` in GitHub and committed it. I then asked Claude to read that new file back to me.
+
+Claude was able to read the new file, confirming that the connection could access current repository content and was not using stale information.
+
+At first, I had trouble finding the GitHub connector because I was using a free Claude account and only saw GitLab. After getting the correct connection working, I repeated the repository tests successfully.
