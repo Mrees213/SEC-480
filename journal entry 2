@@ -1,0 +1,43 @@
+# Module 2 Technical Journal
+
+## 1. The process I wrote, and where it came from
+
+My process came from being interviewed about how I would investigate a possible account compromise before looking at the actual log. The interview helped me put into words things I normally would have done more instinctively, like checking whether a compromise actually happened before trying to decide what kind of attack it was, treating suspicious events as leads instead of proof, and checking the raw evidence myself before trusting an AI conclusion.
+
+The process I ended up with focuses on defining the question first, reviewing the original evidence, comparing activity against expected behavior, separating facts from assumptions, checking timestamps and timelines, looking at what happened after a suspicious login, handling missing evidence, verifying AI-generated claims, and reporting uncertainty clearly.
+
+Someone else could use the same process, but they would probably need to change the parts that depend on their own environment, such as what counts as a known IP address, what normal account activity looks like, and which logs or tools are available to them.
+
+## 2. Where the platform was confidently wrong
+
+The platform produced an analysis that was mostly useful, but some of its claims were more confident than the evidence supported.
+
+For example, it said there were "integrity problems" with the log because the PIDs were out of order, one entry used UTC while the others used `-04:00`, `invalid user root` looked unusual, the SSH fingerprint was shortened, and the IP addresses were documentation ranges.
+
+Those were all observations worth noticing, but the platform went too far in treating them as evidence that the log itself had integrity problems. The supplied evidence did not actually prove that the log had been altered or assembled incorrectly.
+
+What made me doubt the analysis was going back to the raw evidence and separating what was directly visible from what the platform was inferring. The raw log showed those inconsistencies, but it did not explain why they existed. That made me realize that the platform had turned possible explanations into stronger conclusions than the evidence justified.
+
+## 3. What my own process missed, and what fixing it cost
+
+My original process focused heavily on the events in the evidence, but it did not explicitly tell me to examine the quality and completeness of the evidence itself.
+
+After reviewing the analysis, I realized I needed to add a step that checks whether the evidence has inconsistent formatting, missing time ranges, shortened fields, mixed timestamp formats, or anything else that could affect how much confidence I should place in it.
+
+The cost of adding that step is time and attention. On every future review, I now have to spend extra time checking the evidence before I can move on to interpreting what it says. That may slow down investigations where the evidence is perfectly normal, but it reduces the chance of building a confident conclusion on incomplete or misleading data.
+
+## 4. What I could not tell
+
+The biggest thing I could not determine was whether the successful `deploy` login was legitimate.
+
+The failed SSH attempts came from one IP address and used passwords against invalid usernames, while the successful login came from a different IP address and used public-key authentication for the `deploy` account. The events happened at roughly the same time, but that did not prove they were connected.
+
+I also could not determine what happened after the successful login or during the rest of the alert window because the supplied log only covered a short section of time. Because of that, I could say that the failed-password attempts shown in the log did not succeed, but I could not confidently say that the host was completely uncompromised.
+
+## 5. The handover I received against the one I wrote
+
+The handover I received was friendly and confident, but it did not provide enough information to actually continue the work safely. It relied on statements like "if it looks like a brute force, it usually is" and "timestamps are in local time, I think," which are not strong enough instructions for someone taking over an investigation.
+
+The handover I wrote was more specific about what had already been completed, what the evidence showed, what was still uncertain, and what the next person should investigate. I tried to make it possible for someone else to continue the work without having to reconstruct my reasoning from the beginning.
+
+The main thing I would still improve is making the handover even clearer about the exact state of the GitHub workflow and what still needed to be done after the investigation itself. The technical finding was documented, but the repository and branch process became more confusing than it needed to be.
