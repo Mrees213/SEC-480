@@ -1,0 +1,43 @@
+# Module 5, act 2: a daily snapshot of your own issues, taken by GitHub, not by Claude.
+#
+# Put this file in your repository at exactly this path:  .github/workflows/status.yml
+# (GitHub: Add file -> Create new file, type the path, paste this, commit to main.)
+#
+# Every morning GitHub runs it and commits two files to status/:
+#   issues.json   every issue in this repository, open and closed, with its milestone
+#   taken-at.txt  when the snapshot was taken, in UTC
+# Your recap task reads those files. It never talks to GitHub itself.
+
+name: status snapshot
+
+on:
+  schedule:
+    - cron: "30 10 * * *"     # 10:30 UTC, which is 6:30 am Eastern while daylight time lasts
+  workflow_dispatch:          # adds a "Run workflow" button, for your first run
+
+permissions:
+  contents: write             # to commit the snapshot
+  issues: read                # to list your issues
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Take the snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p status
+          gh issue list --repo "$GITHUB_REPOSITORY" --state all --limit 200 \
+            --json number,title,state,milestone,assignees,createdAt,closedAt > status/issues.json
+          date -u +%Y-%m-%dT%H:%M:%SZ > status/taken-at.txt
+
+      - name: Commit it
+        run: |
+          git config user.name "status-snapshot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add status
+          git commit -m "status snapshot $(cat status/taken-at.txt)"
+          git push
