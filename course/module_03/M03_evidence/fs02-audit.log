@@ -1,0 +1,21 @@
+# fs02 file system audit export
+# Requested: Tue 15 Sep 2026, events for Mon 14 Sep 2026
+# Source: fs02 local audit subsystem
+# NOTE FROM IT: this is everything the host has for that date. Do not read the gap as quiet.
+
+2026-09-14T08:02:11-04:00 fs02 audit[4412]: OBJECT_ACCESS user=DOMAIN\dokafor path=\finance\Q3-working\Q3-draft-v4.xlsx access=READ result=SUCCESS
+2026-09-14T08:07:45-04:00 fs02 audit[4412]: OBJECT_ACCESS user=DOMAIN\dokafor path=\finance\Q3-working\Q3-draft-v4.xlsx access=WRITE result=SUCCESS
+2026-09-14T08:14:02-04:00 fs02 audit[4412]: OBJECT_DELETE user=DOMAIN\svc-archive path=\finance\Q3-archive\2025 result=SUCCESS
+2026-09-14T08:14:03-04:00 fs02 audit[4412]: OBJECT_DELETE user=DOMAIN\svc-archive path=\finance\Q3-archive\2024 result=SUCCESS
+2026-09-14T08:14:05-04:00 fs02 audit[4412]: OBJECT_DELETE user=DOMAIN\svc-archive path=\finance\Q3-archive\2023 result=SUCCESS
+2026-09-14T08:31:19-04:00 fs02 audit[4412]: OBJECT_ACCESS user=DOMAIN\mreyes path=\finance\Q3-working\notes.docx access=READ result=SUCCESS
+2026-09-14T08:44:50-04:00 fs02 audit[4412]: LOGON user=DOMAIN\jcontractor source=10.20.4.77 type=NETWORK result=SUCCESS
+2026-09-14T08:52:33-04:00 fs02 audit[4412]: OBJECT_ACCESS user=DOMAIN\jcontractor path=\finance\Q3-archive access=READ result=SUCCESS
+2026-09-14T08:58:41-04:00 fs02 audit[4412]: POLICY_CHANGE user=DOMAIN\svc-config subsystem=audit detail="object access auditing disabled pending reconfiguration, CHG-2211"
+
+# ---- no events recorded between 08:58:41 and 13:04:12 ----
+
+2026-09-14T13:04:12-04:00 fs02 audit[4412]: POLICY_CHANGE user=DOMAIN\svc-config subsystem=audit detail="object access auditing re-enabled, CHG-2211 complete"
+2026-09-14T13:15:07-04:00 fs02 audit[4412]: OBJECT_ACCESS user=DOMAIN\mreyes path=\finance access=READ result=SUCCESS
+2026-09-14T13:15:11-04:00 fs02 audit[4412]: OBJECT_ACCESS user=DOMAIN\mreyes path=\finance\Q3-working access=READ result=FAILURE reason=PATH_NOT_FOUND
+2026-09-14T16:40:02-04:00 fs02 audit[4412]: LOGOFF user=DOMAIN\jcontractor result=SUCCESS
