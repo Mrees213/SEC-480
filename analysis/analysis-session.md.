@@ -1,0 +1,112 @@
+
+**Short answer:** The evidence can't show who removed `\finance\Q3-working`. It can show when, within limits. The folder was last confirmed present at **08:31:19 on Mon 14 Sep** and first confirmed missing at **13:15:11 the same day**. That window almost entirely overlaps a four-hour period when object-access auditing was switched off.
+
+A note on the files: five were attached, but `fs02-audit.log` and `fs02-audit (1).log` have identical contents, so I treated them as one audit log. That leaves four distinct sources: the ticket, the audit log, the chat export and the asset record. The chat export has no timezone, so I've assumed it uses the same local time (UTC−4) as the audit log.
+
+## Combined timeline, Mon 14 Sep 2026
+
+| Time | Source | Event |
+|---|---|---|
+| 08:02:11 | Audit | dokafor READ `Q3-working\Q3-draft-v4.xlsx`, success |
+| 08:07:45 | Audit | dokafor WRITE same file, success |
+| 08:14:02–05 | Audit | svc-archive deletes `Q3-archive\2025`, `\2024`, `\2023` |
+| **08:31:19** | Audit | mreyes READ `Q3-working\notes.docx`, success. **This is the last evidence the folder existed.** |
+| 08:44:50 | Audit | jcontractor network logon from 10.20.4.77 |
+| 08:52:33 | Audit | jcontractor READ `\finance\Q3-archive` |
+| **08:58:41** | Audit | svc-config disables object-access auditing (CHG-2211) |
+| 09:12 | Chat | jcontractor: on fs02 for "the legal cleanup Priya asked for" |
+| 11:47 | Chat | jcontractor: cleared out old material, freed space |
+| **13:04:12** | Audit | svc-config re-enables auditing |
+| 13:15:07 | Audit | mreyes READ `\finance`, success |
+| **13:15:11** | Audit | mreyes READ `\finance\Q3-working` fails with PATH_NOT_FOUND. **This is the first evidence the folder was gone.** |
+| 13:20–13:22 | Chat | mreyes asks Dana if she moved it. Dana: not her, in meetings, will look after lunch |
+| 16:35 / 16:40:02 | Chat / Audit | jcontractor says logged off / LOGOFF recorded |
+
+## 1. The audit gap
+
+**Stated facts**
+- Auditing was off from 08:58:41 to 13:04:12, about 4 hours 5 minutes. The log header says the gap should not be read as inactivity.
+- CHG-2211's approved window was 09:00 to 13:00. The actual disable came about 1 minute early and the re-enable about 4 minutes late. Both fall outside the approved window. The gaps are small, but they are deviations.
+- The folder's 08:31–13:15 disappearance window is 4 h 44 m. About 4 h 5 m of that was unaudited.
+
+**Inference**
+- Auditing was on from 08:31:19 to 08:58:41 and from 13:04:12 to 13:15:11. Svc-archive's deletes earlier that morning were logged, so a delete in those audited stretches would probably have been logged too. No such event appears. The removal therefore most likely happened inside the gap. This rests on an assumption the evidence doesn't confirm: that auditing covered deletes on that path.
+- Because of the gap, the audit log can't attribute the removal to anyone. It also can't distinguish a delete from a move or rename. Mreyes's first guess was that the folder had been moved, and nothing in the evidence rules that out.
+
+## 2. Deletions actually in the log
+
+**Stated facts**
+- The only OBJECT_DELETE events are svc-archive removing `\finance\Q3-archive\2025`, `\2024` and `\2023` at 08:14. None of them touches `Q3-working`.
+- Mreyes successfully read a file inside `Q3-working` at 08:31:19, 17 minutes after those deletes.
+
+**Conclusion**
+- Those three logged deletes did not remove `Q3-working`. The folder demonstrably survived them. The shared "Q3-" prefix is a naming coincidence, not a link.
+
+**Open points**
+- CHG-2198 cut svc-archive's retention from 36 to 12 months four days earlier. Deleting the `2025` folder under a 12-month rule is questionable, depending on how age is measured. This is worth checking as a separate data-loss issue.
+- The evidence doesn't show whether the svc-archive scheduled task ran again during the gap. Task Scheduler history on fs02 would answer that.
+- The asset record lists svc-archive on `Q3-working`'s access list while also saying its Modify right is scoped to `Q3-archive`. Svc-archive's effective rights on `Q3-working` should be confirmed rather than assumed.
+
+## 3. Contractor's statements vs. permissions
+
+**Stated facts**
+- The chat and audit log agree on presence. Logon was at 08:44, and "in on fs02" was posted at 09:12. Logoff was recorded at 16:40 and announced at 16:35. The five-minute difference is minor.
+- jcontractor described doing a cleanup between 09:12 and 11:47. That work falls entirely inside the audit gap, so nothing on record shows what was cleared.
+- The only file access logged for jcontractor is a read of `\finance\Q3-archive` at 08:52. That is a legal-group contractor in a finance path. The asset record doesn't list jcontractor's rights on `Q3-archive`.
+- Per the asset record, jcontractor's only right on `Q3-working` is **Read**, through contractors-legal. Read does not permit deletion.
+- At 13:20, mreyes reported the folder missing in the same channel jcontractor had invited issue reports to. The excerpt shows no reply from jcontractor.
+
+**What this does and doesn't show**
+- Taken at face value, the access list says jcontractor could not have deleted the folder. Three caveats limit that:
+  - The asset record was exported **Tue 15 Sep 14:40**, after the folder was already gone. That access list can't have been read live from the folder, so it is either documentation or a reconstruction. It isn't proof of Monday's effective permissions.
+  - Removing a folder can also be allowed by "delete subfolders and files" rights on the parent `\finance`. The record doesn't show those.
+  - jcontractor could hold rights through other groups. The record lists Domain Admins as Full but not its members.
+- The timing overlap between the cleanup and the gap is a correlation. It doesn't establish that jcontractor did it.
+- "Priya" may be pashford on the finance team, but that is a guess from the name. Nothing confirms it. Who asked for the cleanup and what its scope was are both unestablished.
+- The chat is an excerpt that Dana exported, so its completeness is unknown.
+
+## 4. Dana's account vs. machine evidence
+
+**Stated facts**
+- **Ticket:** She opened `Q3-draft-v4.xlsx` "Monday afternoon" and it opened fine. She says she found the folder gone "this morning", meaning Tue 15 Sep.
+- **Audit:** Her only access that day was a read and write at 08:02 and 08:07 in the morning. No afternoon access is logged. Auditing was back on from 13:04, and the folder returned PATH_NOT_FOUND at 13:15.
+- **Chat:** Mreyes told her at 13:20 Monday that the folder was missing, and she replied at 13:22.
+
+**Conclusion:** Her afternoon claim conflicts with the machine evidence. By early Monday afternoon the folder no longer existed at that path, and no afternoon access by her was recorded. Her ticket also frames the discovery as Tuesday morning, but the chat shows she was alerted Monday at 13:20.
+
+**What can't be determined:** Why the accounts differ. Benign explanations fit:
+- She may be misremembering the 08:02 open as afternoon.
+- She may have opened a local, cached or Offline Files copy.
+- She may be conflating the chat alert with her own check on Tuesday.
+
+Nothing here supports treating the discrepancy as deliberate.
+
+## What the evidence establishes
+
+| Question | Established? |
+|---|---|
+| Who removed it | **No.** It happened during unaudited time. Accounts with apparent Modify or Full rights are the four finance-team members, Domain Admins, and possibly svc-archive. svc-config's own rights aren't recorded. |
+| Deleted vs. moved | **No.** Disappearance is established, deletion is not. |
+| When | **Fact:** between 08:31:19 and 13:15:11 on Mon 14 Sep. **Inference:** most likely between 08:58:41 and 13:04:12. |
+| Logged deletes related to it | **No.** They concern `Q3-archive`, and the folder survived them. |
+| Recycle bin relevant | **No.** It is disabled on this share, at Finance's request in 2024, so Dana's check couldn't have found anything. |
+
+## Most urgent point: backups have probably expired
+
+The asset record lists nightly 02:00 snapshots with **14-day retention**. The last snapshots that should contain the folder are Sun 13 Sep and Mon 14 Sep at 02:00. Those would have aged out around 27–28 Sep. Today is 8 Oct. Unless someone restored the data or put the snapshots on hold after 15 Sep, the backup copy of `Q3-working` is probably gone. Any restore would also have lacked Dana's 08:07 Monday edit.
+
+The evidence doesn't show whether anything was done after the ticket opened. This is the first thing to confirm with IT. The deleted `Q3-archive` years are probably in the same position.
+
+## Next checks, highest value first
+
+1. Ask IT whether any restore or retention hold happened between 15 and 28 Sep.
+2. Search fs02 for `Q3-draft-v4.xlsx` or the folder name in case it was moved rather than deleted. Also check client Offline Files caches, including Dana's.
+3. Find evidence from outside the fs02 audit log covering 09:00–13:00:
+   - domain controller logs
+   - SMB session and open-file data
+   - EDR or endpoint logs from 10.20.4.77 and from finance team workstations
+   - storage-layer or array logs
+4. Pull Task Scheduler history for svc-archive, and confirm the effective ACLs on `\finance` and `Q3-working` as they stood on 14 Sep, including Domain Admins membership.
+5. Ask jcontractor and whoever requested the cleanup for its written scope and what was actually removed.
+
+I can turn this into a doc for the ticket if that would help.
