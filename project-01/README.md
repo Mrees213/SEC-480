@@ -105,3 +105,9 @@ project-01/
 └── chain/
     ├── prediction.md
     └── results.md
+
+Conclusion
+Project 1 showed that an AI-generated analysis can appear convincing while still containing claims that go beyond the available evidence.
+Separating claims into stated, inferred, and unsupported categories made those differences easier to identify.
+The same evidence-review method was then packaged into a reusable Skill and tested on a different artifact type.
+The cross-system chain also showed that successful automation does not necessarily guarantee that the destination is an exact copy of the source.
