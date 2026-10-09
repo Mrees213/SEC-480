@@ -9,6 +9,7 @@ inherit, the reference document, the journal brief, the survey, Project 1, and t
 `module_04/` holds module 4: the lab, the journal brief, and the deck.
 `module_05/` holds module 5: the lab, the journal brief, the deck, the ticket queue you work,
 and the workflow file for act 2.
+`module_06/` holds module 6: the lab, the journal brief, the deck, Project 2, and survey S02.
 `showing-your-work.md` explains what process evidence means and applies all term.
 
 Do not edit files in here. If you want to write about one of them, that belongs in your journal
