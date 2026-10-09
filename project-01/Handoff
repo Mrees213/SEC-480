@@ -1,0 +1,13 @@
+# Project 1 Handoff
+
+This submission contains the complete Project 1 workflow.
+
+The project analyzes a small PowerShell auditing script using a written output contract and an evidence-based claim review.
+
+The main finding is that the script explicitly configures and queries Windows process auditing settings, but the source alone cannot establish whether the commands actually executed successfully or whether the expected Event ID 4688 data was produced.
+
+I also created a reusable Evidence Review Skill and tested it on a different artifact type, a Dockerfile, without changing the evidence-review method.
+
+The cross-system portion used Google Drive → Claude → GitHub. The chain succeeded, but the GitHub destination included an automatically generated footer that was not present in the Drive source.
+
+The area I would most like reviewed is the distinction between stated, inferred, and unsupported claims in `analysis/claim-table.md`.
